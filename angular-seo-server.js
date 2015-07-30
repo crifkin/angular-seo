@@ -28,9 +28,11 @@ var renderHtml = function(url, cb) {
         cb(page.content);
         page.close();
     };
-//    page.onConsoleMessage = function(msg, lineNum, sourceId) {
-//        console.log('CONSOLE: ' + msg + ' (from line #' + lineNum + ' in "' + sourceId + '")');
-//    };
+    /*
+    page.onConsoleMessage = function(msg, lineNum, sourceId) {
+      console.log('CONSOLE: ' + msg + ' (from line #' + lineNum + ' in "' + sourceId + '")');
+    };
+    */
     page.onInitialized = function() {
        page.evaluate(function() {
             setTimeout(function() {
@@ -43,9 +45,21 @@ var renderHtml = function(url, cb) {
 
 server.listen(port, function (request, response) {
     var route = parse_qs(request.url)._escaped_fragment_;
-    var url = urlPrefix
-      + request.url.slice(1, request.url.indexOf('?'))
-      + '#!' + decodeURIComponent(route);
+    var url; 
+    if(typeof route != 'undefined') {
+      url = urlPrefix
+          + request.url.slice(1, request.url.indexOf('?'))
+          + decodeURIComponent(route);
+    }
+    else {
+      url = urlPrefix
+          + request.url.slice(1, request.url.indexOf('?'))
+          + request.url;
+    }
+            
+    url = url.replace('.com//', '.com/');
+    
+    console.log("url: " + url);
     renderHtml(url, function(html) {
         response.statusCode = 200;
         response.write(html);
