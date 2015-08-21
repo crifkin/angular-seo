@@ -44,22 +44,27 @@ var renderHtml = function(url, cb) {
 };
 
 server.listen(port, function (request, response) {
-    var route = parse_qs(request.url)._escaped_fragment_;
-    var url; 
-    if(typeof route != 'undefined') {
-      url = urlPrefix
-          + request.url.slice(1, request.url.indexOf('?'))
-          + decodeURIComponent(route);
+    var route = parse_qs(request.url)._escaped_fragment_
+      , url = urlPrefix;
+
+    if(request.url.indexOf('?') > -1) {
+      url += request.url.slice(1, request.url.indexOf('?'));
     }
     else {
-      url = urlPrefix
-          + request.url.slice(1, request.url.indexOf('?'))
-          + request.url;
+      url += request.url;
     }
-            
+
+    console.log("slice: " + request.url.slice(1, request.url.indexOf('?')));
+
+    if(typeof route != 'undefined') {
+        url += decodeURIComponent(route);
+    }
+
     url = url.replace('.com//', '.com/');
-    
+
+    console.log("route: " + route);
     console.log("url: " + url);
+
     renderHtml(url, function(html) {
         response.statusCode = 200;
         response.write(html);
